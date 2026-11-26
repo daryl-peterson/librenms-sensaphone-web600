@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Install Sensaphone WEB600 SNMP monitoring in LibreNMS and configure power, door, and temperature alerts.">
+  <title>Sensaphone WEB600 support for LibreNMS</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #182b3b;
+      --muted: #43596a;
+      --accent: #006254;
+      --border: #d4e0e4;
+      --paper: #f4f8f9;
+      --navy: #132937;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font: 1rem/1.6 system-ui, sans-serif;
+    }
+
+    a { color: var(--accent); text-underline-offset: .18em; }
+    a:hover { text-decoration-thickness: .14em; }
+    a:focus-visible { outline: 3px solid #a75a12; outline-offset: 5px; }
+
+    .wrap { width: min(65rem, calc(100% - 2.5rem)); margin-inline: auto; }
+
+    .hero {
+      background: var(--navy);
+      color: #f5fbff;
+      padding-block: clamp(2.5rem, 8vw, 5.5rem);
+    }
+
+    h1, h2, h3 { line-height: 1.15; text-wrap: balance; }
+    h1 { margin: 0; max-width: 18ch; font-size: clamp(2.4rem, 6vw, 4.5rem); letter-spacing: -.045em; }
+    h2 { margin: 0 0 .85rem; font-size: clamp(1.65rem, 3vw, 2.15rem); letter-spacing: -.025em; }
+    h3 { margin: 0 0 .35rem; font-size: 1.08rem; }
+    p { margin: 0 0 1rem; }
+
+    .hero p { max-width: 47ch; margin-block: 1.1rem 1.65rem; color: #c7dbe5; font-size: 1.125rem; }
+    .hero a { color: #ecf8ff; }
+    .actions { display: flex; flex-wrap: wrap; align-items: center; gap: .85rem 1.5rem; }
+    .hero .primary {
+      border-radius: .45rem;
+      padding: .66rem 1rem;
+      background: #9ee8d8;
+      color: #102f31;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .hero .primary:hover { background: #c5f6eb; }
+    .hero a:focus-visible { outline-color: #ffd495; }
+
+    section { padding-block: clamp(2rem, 6vw, 3.5rem); }
+    section + section { border-top: 1px solid var(--border); }
+    .install-grid, .alerts-grid { display: grid; gap: 1.5rem 2.25rem; }
+    .requirements { color: var(--muted); max-width: 66ch; }
+
+    pre {
+      padding: 1rem 1.2rem;
+      margin: 0 0 1rem;
+      overflow-x: auto;
+      background: var(--navy);
+      color: #f5fbff;
+      border-radius: .55rem;
+      font-size: .9rem;
+      line-height: 1.65;
+    }
+
+    code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+    .install-links { display: flex; flex-wrap: wrap; gap: .55rem 1.25rem; }
+
+    .rules { list-style: none; padding: 0; margin: 0; }
+    .rules li { padding-block: 1rem; border-bottom: 1px solid var(--border); }
+    .rules li:first-child { padding-top: .25rem; }
+    .rules p { color: var(--muted); margin: 0; }
+
+    figure { margin: 0; }
+    figure img { display: block; width: 100%; height: auto; border: 1px solid var(--border); border-radius: .55rem; }
+    figcaption { margin-top: .5rem; color: var(--muted); font-size: .9rem; }
+
+    @media (min-width: 50rem) {
+      .install-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); align-items: start; }
+      .alerts-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="wrap">
+      <h1>Sensaphone WEB600 support for LibreNMS</h1>
+      <p>Discover your WEB600 over SNMP and monitor enabled inputs and supported temperature probes in LibreNMS.</p>
+      <nav class="actions" aria-label="Project links">
+        <a class="primary" href="./guide.html">Installation and alert guide</a>
+        <a href="https://github.com/daryl-peterson/librenms-sensaphone-web600">View source on GitHub</a>
+      </nav>
+    </div>
+  </header>
+  <main class="wrap">
+    <section aria-labelledby="install">
+      <div class="install-grid">
+        <div>
+          <h2 id="install">Install and discover</h2>
+          <p class="requirements">You’ll need LibreNMS with PHP 8.3 or later, write access to the LibreNMS directory, and a WEB600 reachable over SNMP from the poller.</p>
+          <p class="requirements">The Linux installer defaults to <code>/opt/librenms</code>. After installation, add or rediscover the WEB600 and check its sensors under <strong>Health</strong>.</p>
+        </div>
+        <div>
+          <pre><code>git clone https://github.com/daryl-peterson/librenms-sensaphone-web600.git
+cd librenms-sensaphone-web600
+./install.sh</code></pre>
+          <nav class="install-links" aria-label="Installation instructions">
+            <a href="./guide.html#install-on-the-librenms-host">Linux options</a>
+            <a href="./guide.html#copy-from-windows">Copy from Windows</a>
+            <a href="./guide.html#add-or-rediscover-the-web600">Add or rediscover the device</a>
+          </nav>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="alerts">
+      <h2 id="alerts">Example alert rules</h2>
+      <div class="alerts-grid">
+        <ul class="rules">
+          <li>
+            <h3><a href="./guide.html#commercial-power">Commercial power</a></h3>
+            <p>Raise a critical alert when the configured commercial power contact enters an alarm state.</p>
+          </li>
+          <li>
+            <h3><a href="./guide.html#door-alert">Door contact</a></h3>
+            <p>Raise a warning when the configured door contact enters an alarm state.</p>
+          </li>
+          <li>
+            <h3><a href="./guide.html#high-temperature">High temperature</a></h3>
+            <p>Raise a warning when a temperature reading exceeds the sensor’s upper limit.</p>
+          </li>
+        </ul>
+        <figure>
+          <img src="./screenshotes/sensaphone-temp-rule.png" width="1165" height="998" alt="LibreNMS rule editor comparing the current WEB600 temperature with the sensor’s upper limit">
+          <figcaption>High-temperature rule in the LibreNMS alert editor.</figcaption>
+        </figure>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
