@@ -109,7 +109,7 @@ install.bat &quot;\\monitoring-server\librenms&quot;</code></pre>
 </tr>
 </tbody>
 </table>
-<p><img src="screenshotes/sensaphone-power-rule.png" alt="LibreNMS Commercial Power alert rule with its AND conditions and Critical severity" /></p>
+<p><img src="screenshots/sensaphone-power-rule.png" alt="LibreNMS Commercial Power alert rule with its AND conditions and Critical severity" /></p>
 <h3 id="door-alert">Door alert</h3>
 <p>Use the rule name <strong>Web600 - Door Alert</strong>, severity <strong>Warning</strong>, and operation <strong>Send To Pushover</strong>.</p>
 <table>
@@ -144,7 +144,7 @@ install.bat &quot;\\monitoring-server\librenms&quot;</code></pre>
 </tbody>
 </table>
 <p>Both contact rules match the WEB600's <strong>Open Alarm</strong> state (<code>3</code>). If your input reports <strong>Closed Alarm</strong> instead when it alarms, use <code>2</code>. The <code>(?i)</code> prefix makes the name match case-insensitive. Adjust the pattern if the sensor is named differently.</p>
-<p><img src="screenshotes/sensaphone-door-rule.png" alt="LibreNMS Door Alert rule with its AND conditions and Warning severity" /></p>
+<p><img src="screenshots/sensaphone-door-rule.png" alt="LibreNMS Door Alert rule with its AND conditions and Warning severity" /></p>
 <h3 id="high-temperature">High temperature</h3>
 <p>Use the rule name <strong>Web600 - High Temp Alarm</strong>, severity <strong>Warning</strong>, and operation <strong>None (suppress notifications)</strong> to match the screenshot. Select a notification operation if you want an external notification.</p>
 <table>
@@ -179,7 +179,7 @@ install.bat &quot;\\monitoring-server\librenms&quot;</code></pre>
 </tbody>
 </table>
 <p>Include the backticks around <code>sensors.sensor_limit</code> in the value field so LibreNMS compares against the sensor's stored upper limit. Verify or set that limit under the device's <strong>Settings → Health</strong>. WEB600 temperature readings are stored in Celsius. <a href="https://docs.librenms.org/Support/Device-Sensors/">LibreNMS sensor limits</a></p>
-<p><img src="screenshotes/sensaphone-temp-rule.png" alt="LibreNMS High Temp Alarm comparing the current temperature with the sensor&#39;s upper limit" /></p>
+<p><img src="screenshots/sensaphone-temp-rule.png" alt="LibreNMS High Temp Alarm comparing the current temperature with the sensor&#39;s upper limit" /></p>
 <h2 id="files-copied">Files copied</h2>
 <p>The paths below are relative to the LibreNMS root.</p>
 <ul>

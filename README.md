@@ -74,7 +74,7 @@ Use the rule name **Web600 - Commercial Power**, severity **Critical**, and oper
 | `sensors.sensor_current` | equal    | `3`                         |
 | `sensors.sensor_alert`   | equal    | `1`                         |
 
-![LibreNMS Commercial Power alert rule with its AND conditions and Critical severity](screenshotes/sensaphone-power-rule.png)
+![LibreNMS Commercial Power alert rule with its AND conditions and Critical severity](screenshots/sensaphone-power-rule.png)
 
 ### Door alert
 
@@ -89,7 +89,7 @@ Use the rule name **Web600 - Door Alert**, severity **Warning**, and operation *
 
 Both contact rules match the WEB600's **Open Alarm** state (`3`). If your input reports **Closed Alarm** instead when it alarms, use `2`. The `(?i)` prefix makes the name match case-insensitive. Adjust the pattern if the sensor is named differently.
 
-![LibreNMS Door Alert rule with its AND conditions and Warning severity](screenshotes/sensaphone-door-rule.png)
+![LibreNMS Door Alert rule with its AND conditions and Warning severity](screenshots/sensaphone-door-rule.png)
 
 ### High temperature
 
@@ -104,7 +104,7 @@ Use the rule name **Web600 - High Temp Alarm**, severity **Warning**, and operat
 
 Include the backticks around `sensors.sensor_limit` in the value field so LibreNMS compares against the sensor's stored upper limit. Verify or set that limit under the device's **Settings → Health**. WEB600 temperature readings are stored in Celsius. [LibreNMS sensor limits](https://docs.librenms.org/Support/Device-Sensors/)
 
-![LibreNMS High Temp Alarm comparing the current temperature with the sensor's upper limit](screenshotes/sensaphone-temp-rule.png)
+![LibreNMS High Temp Alarm comparing the current temperature with the sensor's upper limit](screenshots/sensaphone-temp-rule.png)
 
 
 ## Files copied
