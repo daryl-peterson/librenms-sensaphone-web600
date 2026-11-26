@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Install Sensaphone WEB600 support in LibreNMS, discover its sensors, and configure power, door, and temperature alerts.">
+  <title>WEB600 Installation and Alert Guide | LibreNMS</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; color: #182b3b; background: #f4f8f9; font: 1rem/1.65 system-ui, sans-serif; }
+    .wrap { width: min(48rem, calc(100% - 2rem)); margin-inline: auto; }
+    header { padding-block: 1rem; background: #132937; }
+    nav { display: flex; flex-wrap: wrap; gap: .5rem 1.5rem; }
+    a { color: #006254; text-underline-offset: .18em; }
+    header a { color: #ecf8ff; }
+    a:focus-visible { outline: 3px solid #a75a12; outline-offset: 4px; }
+    header a:focus-visible { outline-color: #ffd495; }
+    main { padding-block: 1.5rem 4rem; }
+    h1, h2, h3 { line-height: 1.2; text-wrap: balance; }
+    h1 { font-size: clamp(2rem, 5vw, 3.25rem); letter-spacing: -.035em; }
+    h2 { border-top: 1px solid #d4e0e4; padding-top: 1.65rem; margin-top: 2.25rem; }
+    h3 { margin-top: 1.75rem; }
+    li + li { margin-top: .4rem; }
+    code { overflow-wrap: anywhere; }
+    pre { padding: 1rem; overflow-x: auto; border-radius: .5rem; background: #132937; color: #f5fbff; }
+    table { width: 100%; table-layout: fixed; border-collapse: collapse; }
+    th, td { padding: .55rem; border-bottom: 1px solid #d4e0e4; text-align: left; overflow-wrap: anywhere; }
+    th:nth-child(2) { width: 22%; }
+    figure { margin: 1.25rem 0; }
+    img { display: block; max-width: 100%; height: auto; border: 1px solid #d4e0e4; border-radius: .5rem; }
+    figcaption { margin-top: .45rem; color: #43596a; }
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="wrap" aria-label="Project links">
+      <a href="./">Project home</a>
+      <a href="https://github.com/daryl-peterson/librenms-sensaphone-web600">View source on GitHub</a>
+    </nav>
+  </header>
+  <main class="wrap">
+<h1 id="sensaphone-web600-support-for-librenms">Sensaphone WEB600 support for LibreNMS</h1>
+<p>Adds SNMP discovery and monitoring for the Sensaphone WEB600. LibreNMS can show alarm status for enabled inputs and temperature readings for supported temperature probes.</p>
+<h2 id="requirements">Requirements</h2>
+<ul>
+<li>An existing LibreNMS installation with PHP 8.3 or later. The installer expects the root directory to contain <code>lnms</code>.</li>
+<li>A WEB600 with SNMP enabled and reachable from the LibreNMS poller.</li>
+<li>Write access to the LibreNMS installation directory. If you copy the files from Windows, use a mapped drive or network share that exposes that directory.</li>
+</ul>
+<h2 id="install-on-the-librenms-host">Install on the LibreNMS host</h2>
+<p>Clone the repository and run the installer. It defaults to <code>/opt/librenms</code>.</p>
+<pre class="bash"><code>git clone https://github.com/daryl-peterson/librenms-sensaphone-web600.git
+cd librenms-sensaphone-web600
+./install.sh</code></pre>
+<p>For a custom installation path, pass it as an argument.</p>
+<pre class="bash"><code>./install.sh &quot;/path/to/librenms&quot;</code></pre>
+<p>Run as the account that owns the LibreNMS files, or use <code>sudo ./install.sh</code> if your account needs permission to write there. The script checks the PHP file and matches each destination file’s ownership to a neighboring LibreNMS file.</p>
+<h2 id="copy-from-windows">Copy from Windows</h2>
+<p>In Command Prompt, open the cloned or extracted repository and run <code>install.bat</code> with the LibreNMS root. For example, use a mapped drive or a UNC path.</p>
+<pre class="bat"><code>install.bat &quot;Z:\LibreNMS&quot;
+install.bat &quot;\\monitoring-server\librenms&quot;</code></pre>
+<p>Use a share account that can write to the LibreNMS tree. Confirm on the LibreNMS host that its service account can read the copied files. Run device discovery and polling on that host.</p>
+<p>Both installers skip identical files and stop if a destination file differs. Review any conflicting file before replacing it.</p>
+<h2 id="add-or-rediscover-the-web600">Add or rediscover the WEB600</h2>
+<p>For a new device, open <strong>Devices → Add Device</strong> in LibreNMS and enter the WEB600 hostname or IP address and its SNMP settings. For command-line options, see the <a href="https://docs.librenms.org/Support/Adding-a-Device/">LibreNMS guide to adding a device</a>.</p>
+<p>From the LibreNMS directory, run these commands as the LibreNMS service account. Replace <code>web600.example.local</code> with the hostname or IP address used when adding the device.</p>
+<pre class="bash"><code>./lnms device:discover web600.example.local
+./lnms device:poll web600.example.local</code></pre>
+<p>Open the device in LibreNMS and check that it identifies as <strong>Sensaphone WEB600</strong> and shows the available sensors under <strong>Health</strong>. If detection fails, verify that the poller can reach the device over SNMP and that the device reports <code>.1.3.6.1.4.1.8338.1.1.4</code> as its <code>sysObjectID</code>. See the <a href="https://docs.librenms.org/Support/Discovery%20Support/">discovery guide</a> and <a href="https://docs.librenms.org/Support/Poller%20Support/">poller guide</a>.</p>
+<h2 id="create-web600-alert-rules">Create WEB600 alert rules</h2>
+<p>Run discovery and polling first, then open the WEB600's <strong>Health</strong> tab and confirm the inputs you want to monitor are listed. For the contact rules, check the displayed sensor descriptions. The examples look for inputs whose names contain <code>commercial</code> or <code>door</code>.</p>
+<ol type="1">
+<li>In LibreNMS, open <strong>Alerts → Alert Rules</strong> and create a rule.</li>
+<li>In the <strong>Main</strong> tab, enter the rule name and leave the condition group set to <strong>AND</strong>. Use <strong>Add rule</strong> to add each row from the matching table below.</li>
+<li>Set the severity and operation shown for that rule. The screenshots have <strong>Recovery alerts</strong> and <strong>Acknowledgement alerts</strong> enabled and <strong>Invert rule match</strong>, <strong>Mute alerts</strong>, and <strong>Notify per matching entity</strong> disabled.</li>
+<li>To limit a rule to one WEB600, select it in <strong>Match devices, groups and locations list</strong> and leave <strong>All devices except in list</strong> off. Save the rule and check its status after the next poll and alert cycle.</li>
+</ol>
+<p><strong>Send To Pushover</strong> is the name of the notification operation used in the contact-rule screenshots. To reproduce it, configure a Pushover transport, add that transport to an alert operation, then select the operation on the rule. You can also select an operation you already use. With <strong>None (suppress notifications)</strong>, the rule still raises alerts in LibreNMS. <a href="https://docs.librenms.org/Alerting/Rules/">Alert rules</a> · <a href="https://docs.librenms.org/Alerting/Operations/">Alert operations</a> · <a href="https://docs.librenms.org/Alerting/Transports/Pushover/">Pushover setup</a></p>
+<h3 id="commercial-power">Commercial power</h3>
+<p>Use the rule name <strong>Web600 - Commercial Power</strong>, severity <strong>Critical</strong>, and operation <strong>Send To Pushover</strong>.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Operator</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sensors.sensor_type</code></td>
+<td>equal</td>
+<td><code>sensaphone-web600-contact</code></td>
+</tr>
+<tr>
+<td><code>sensors.sensor_descr</code></td>
+<td>regex</td>
+<td><code>(?i)commercial</code></td>
+</tr>
+<tr>
+<td><code>sensors.sensor_current</code></td>
+<td>equal</td>
+<td><code>3</code></td>
+</tr>
+<tr>
+<td><code>sensors.sensor_alert</code></td>
+<td>equal</td>
+<td><code>1</code></td>
+</tr>
+</tbody>
+</table>
+<p><img src="screenshotes/sensaphone-power-rule.png" alt="LibreNMS Commercial Power alert rule with its AND conditions and Critical severity" /></p>
+<h3 id="door-alert">Door alert</h3>
+<p>Use the rule name <strong>Web600 - Door Alert</strong>, severity <strong>Warning</strong>, and operation <strong>Send To Pushover</strong>.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Operator</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sensors.sensor_type</code></td>
+<td>equal</td>
+<td><code>sensaphone-web600-contact</code></td>
+</tr>
+<tr>
+<td><code>sensors.sensor_descr</code></td>
+<td>regex</td>
+<td><code>(?i)door</code></td>
+</tr>
+<tr>
+<td><code>sensors.sensor_current</code></td>
+<td>equal</td>
+<td><code>3</code></td>
+</tr>
+<tr>
+<td><code>sensors.sensor_alert</code></td>
+<td>equal</td>
+<td><code>1</code></td>
+</tr>
+</tbody>
+</table>
+<p>Both contact rules match the WEB600's <strong>Open Alarm</strong> state (<code>3</code>). If your input reports <strong>Closed Alarm</strong> instead when it alarms, use <code>2</code>. The <code>(?i)</code> prefix makes the name match case-insensitive. Adjust the pattern if the sensor is named differently.</p>
+<p><img src="screenshotes/sensaphone-door-rule.png" alt="LibreNMS Door Alert rule with its AND conditions and Warning severity" /></p>
+<h3 id="high-temperature">High temperature</h3>
+<p>Use the rule name <strong>Web600 - High Temp Alarm</strong>, severity <strong>Warning</strong>, and operation <strong>None (suppress notifications)</strong> to match the screenshot. Select a notification operation if you want an external notification.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Operator</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>devices.os</code></td>
+<td>equal</td>
+<td><code>sensaphone-web600</code></td>
+</tr>
+<tr>
+<td><code>sensors.sensor_class</code></td>
+<td>equal</td>
+<td><code>temperature</code></td>
+</tr>
+<tr>
+<td><code>sensors.sensor_current</code></td>
+<td>greater</td>
+<td><code>`sensors.sensor_limit`</code></td>
+</tr>
+<tr>
+<td><code>sensors.sensor_alert</code></td>
+<td>equal</td>
+<td><code>1</code></td>
+</tr>
+</tbody>
+</table>
+<p>Include the backticks around <code>sensors.sensor_limit</code> in the value field so LibreNMS compares against the sensor's stored upper limit. Verify or set that limit under the device's <strong>Settings → Health</strong>. WEB600 temperature readings are stored in Celsius. <a href="https://docs.librenms.org/Support/Device-Sensors/">LibreNMS sensor limits</a></p>
+<p><img src="screenshotes/sensaphone-temp-rule.png" alt="LibreNMS High Temp Alarm comparing the current temperature with the sensor&#39;s upper limit" /></p>
+<h2 id="files-copied">Files copied</h2>
+<p>The paths below are relative to the LibreNMS root.</p>
+<ul>
+<li><code>resources/definitions/os_detection/sensaphone-web600.yaml</code></li>
+<li><code>LibreNMS/OS/SensaphoneWeb600.php</code></li>
+<li><code>html/images/os/sensaphone-web600.svg</code></li>
+</ul>
+  </main>
+</body>
+</html>
